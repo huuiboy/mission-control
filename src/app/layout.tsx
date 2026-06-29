@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Sidebar } from "@/components/Sidebar";
 
 export const metadata: Metadata = {
   title: "Mission Control",
@@ -14,8 +15,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <head>
-        {/* Self-hosted via Google Fonts CDN — swap for next/font/local + self-hosted
-            files if deploying somewhere without internet access at build/runtime. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -23,8 +22,11 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-base text-text-primary font-body">
-        {children}
+      <body className="min-h-full flex bg-base text-text-primary font-body">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {children}
+        </div>
       </body>
     </html>
   );
