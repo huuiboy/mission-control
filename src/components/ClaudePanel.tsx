@@ -5,6 +5,7 @@ import { Send, Sparkles, Terminal } from "lucide-react";
 import { useState } from "react";
 import { SignalWave } from "./SignalWave";
 import { SpeechMicButton } from "./SpeechMicButton";
+import { saveAgenticOsEntry } from "@/lib/agentic-os-client";
 
 const quickActions = [
   { label: "New session", hint: "Start a fresh conversation" },
@@ -21,6 +22,7 @@ const recentSessions = [
 export function ClaudePanel() {
   const [waveState] = useState<"idle" | "active" | "thinking">("idle");
   const [input, setInput] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const appendTranscript = (transcript: string) => {
     setInput((current) => {
@@ -123,7 +125,24 @@ export function ClaudePanel() {
             activeClassName="bg-claude-dim text-claude"
           />
           <button
+            onClick={async () => {
+              const message = input.trim();
+              if (!message || isSaving) return;
+              setIsSaving(true);
+              try {
+                await saveAgenticOsEntry({
+                  kind: "chat",
+                  source: "claude-panel",
+                  title: "Claude panel chat",
+                  body: message,
+                });
+                setInput("");
+              } finally {
+                setIsSaving(false);
+              }
+            }}
             aria-label="Send"
+            disabled={!input.trim() || isSaving}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-claude-dim hover:text-claude"
           >
             <Send size={14} />

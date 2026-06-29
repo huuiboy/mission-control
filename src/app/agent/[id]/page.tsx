@@ -6,6 +6,7 @@ import { useState, use } from "react";
 import Link from "next/link";
 import { SignalWave } from "@/components/SignalWave";
 import { SpeechMicButton } from "@/components/SpeechMicButton";
+import { saveAgenticOsEntry } from "@/lib/agentic-os-client";
 
 type AgentId = "claude" | "openclaw" | "hermes";
 
@@ -54,6 +55,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
     { role: "assistant", content: "Hello! I'm ready to help. What would you like to work on?" },
   ]);
   const [input, setInput] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const agent = agentConfigs[id];
   const Icon = agent.icon;
@@ -69,6 +71,25 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         { role: "assistant", content: "I'm processing your request..." },
       ]);
     }, 500);
+  };
+
+  const persistEntry = async () => {
+    const message = input.trim();
+    if (!message || isSaving) return;
+
+    setIsSaving(true);
+    try {
+      await saveAgenticOsEntry({
+        kind: "chat",
+        source: `agent-${id}`,
+        title: `${agent.name} chat`,
+        threadId: id,
+        body: message,
+      });
+      handleSend();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -238,9 +259,10 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
             activeClassName="border-ember/40 bg-ember-dim text-ember"
           />
           <motion.button
-            onClick={handleSend}
+            onClick={persistEntry}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            disabled={!input.trim() || isSaving}
             className="flex h-10 w-10 items-center justify-center rounded-lg bg-claude transition-colors hover:bg-claude/90"
           >
             <Send size={16} className="text-base" />
