@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Send, Sparkles, Terminal } from "lucide-react";
 import { useState } from "react";
 import { SignalWave } from "./SignalWave";
+import { SpeechMicButton } from "./SpeechMicButton";
 
 const quickActions = [
   { label: "New session", hint: "Start a fresh conversation" },
@@ -19,6 +20,14 @@ const recentSessions = [
 
 export function ClaudePanel() {
   const [waveState] = useState<"idle" | "active" | "thinking">("idle");
+  const [input, setInput] = useState("");
+
+  const appendTranscript = (transcript: string) => {
+    setInput((current) => {
+      const base = current.trimEnd();
+      return base ? `${base} ${transcript}` : transcript;
+    });
+  };
 
   return (
     <motion.section
@@ -101,7 +110,17 @@ export function ClaudePanel() {
           <input
             type="text"
             placeholder="Ask Claude or run a command…"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             className="flex-1 bg-transparent font-mono text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
+          />
+          <SpeechMicButton
+            onTranscript={appendTranscript}
+            title="Dictate into Claude"
+            ariaLabel="Dictate into Claude"
+            className="h-8 w-8"
+            inactiveClassName="text-text-muted hover:bg-claude-dim hover:text-claude"
+            activeClassName="bg-claude-dim text-claude"
           />
           <button
             aria-label="Send"

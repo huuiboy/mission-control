@@ -5,6 +5,7 @@ import { Send, Phone, Info, Search, Settings, Sparkles, Zap, Waves, ArrowLeft } 
 import { useState, use } from "react";
 import Link from "next/link";
 import { SignalWave } from "@/components/SignalWave";
+import { SpeechMicButton } from "@/components/SpeechMicButton";
 
 type AgentId = "claude" | "openclaw" | "hermes";
 
@@ -208,11 +209,11 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         animate={{ opacity: 1, y: 0 }}
         className="border-t border-raised bg-surface/50 backdrop-blur-sm px-6 py-4"
       >
-        <div className="flex gap-3 items-end">
-          <div className="flex-1 rounded-xl border border-raised bg-base/40 px-4 py-3 transition-colors focus-within:border-raised-2 focus-within:ring-1 focus-within:ring-raised">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 rounded-xl border border-raised bg-base/40 px-4 py-3 transition-colors focus-within:border-raised-2 focus-within:ring-1 focus-within:ring-raised">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -220,10 +221,22 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
                 }
               }}
               placeholder="Message..."
-              className="w-full bg-transparent font-body text-sm text-text-primary placeholder:text-text-muted focus:outline-none resize-none"
-              rows={1}
-            />
-          </div>
+                className="w-full bg-transparent font-body text-sm text-text-primary placeholder:text-text-muted focus:outline-none resize-none"
+                rows={1}
+              />
+            </div>
+          <SpeechMicButton
+            onTranscript={(transcript) => {
+              setInput((current) => {
+                const base = current.trimEnd();
+                return base ? `${base} ${transcript}` : transcript;
+              });
+            }}
+            title={`Dictate into ${agent.name}`}
+            ariaLabel={`Dictate into ${agent.name}`}
+            className="h-10 w-10 rounded-lg border border-raised bg-base/40 text-text-muted hover:bg-raised-2 hover:text-text-primary"
+            activeClassName="border-ember/40 bg-ember-dim text-ember"
+          />
           <motion.button
             onClick={handleSend}
             whileHover={{ scale: 1.05 }}
