@@ -1,12 +1,15 @@
 import type { AgenticOsEntry } from "@/lib/agentic-os";
 
-export async function saveAgenticOsEntry(entry: AgenticOsEntry) {
+export async function saveAgenticOsEntry(
+  entry: AgenticOsEntry,
+  options?: { mode?: "append" | "replace" }
+) {
   const response = await fetch("/api/agentic-os", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(entry),
+    body: JSON.stringify({ ...entry, mode: options?.mode ?? "append" }),
   });
 
   if (!response.ok) {
@@ -19,4 +22,3 @@ export async function saveAgenticOsEntry(entry: AgenticOsEntry) {
     entry: AgenticOsEntry & { timestamp: string };
   };
 }
-

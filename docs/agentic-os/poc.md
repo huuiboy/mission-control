@@ -1,6 +1,6 @@
-# Honcho + Agentic OS POC
+# Agentic OS + Obsidian Vault POC
 
-Goal: capture activity from `mission-control` into daily Markdown files and keep the path open for Honcho-backed memory later.
+Goal: capture activity from `mission-control` into daily Markdown files inside a dedicated Obsidian vault on the VPS.
 
 What this proves:
 - chat messages can be captured automatically when sent
@@ -8,9 +8,9 @@ What this proves:
 - the server can append to a single daily file per day
 
 Recommended first pass:
-- store files in `Agentic OS/YYYY-MM-DD.md`
-- write the file path from `AGENTIC_OS_DIR`
-- append entries in Markdown, not JSON, so the output is human-readable and easy to sync to Honcho or any other tool later
+- store files in `Agentic OS Vault/Daily/YYYY-MM-DD.md`
+- write the vault path from `OBSIDIAN_VAULT_DIR`
+- append entries in Markdown, not JSON, so the output is human-readable and easy to open in Obsidian
 
 Minimal data model:
 - `kind`: `chat`, `goal`, or `journal`
@@ -23,5 +23,4 @@ Minimal data model:
 Success criteria:
 - sending a chat writes one Markdown entry
 - multiple entries on the same day land in the same file
-- the route works without any API keys
-
+- the route works without any API keys or external sync

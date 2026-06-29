@@ -1,7 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageSquare, Sparkles, Zap, Waves, LogOut, Menu, X } from "lucide-react";
+import {
+  BookText,
+  CheckSquare2,
+  FolderOpen,
+  LogOut,
+  MessageSquare,
+  Menu,
+  Sparkles,
+  Waves,
+  X,
+  Zap,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -37,6 +48,9 @@ export function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
   const isHome = pathname === "/";
+  const isVault = pathname === "/vault";
+  const isGoals = pathname === "/goals";
+  const isJournal = pathname === "/journal";
 
   return (
     <>
@@ -84,9 +98,48 @@ export function Sidebar() {
                 ? "bg-raised border border-claude/40 text-text-primary"
                 : "text-text-secondary hover:bg-raised/50"
             }`}
-          >
+            >
             <MessageSquare size={18} />
             <span className="font-display font-medium">Dashboard</span>
+          </Link>
+
+          <Link
+            href="/goals"
+            onClick={() => setIsOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+              isGoals
+                ? "bg-raised border border-claude/40 text-text-primary"
+                : "text-text-secondary hover:bg-raised/50"
+            }`}
+          >
+            <CheckSquare2 size={18} />
+            <span className="font-display font-medium">Goals</span>
+          </Link>
+
+          <Link
+            href="/vault"
+            onClick={() => setIsOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+              isVault
+                ? "bg-raised border border-claude/40 text-text-primary"
+                : "text-text-secondary hover:bg-raised/50"
+            }`}
+          >
+            <FolderOpen size={18} />
+            <span className="font-display font-medium">Vault</span>
+          </Link>
+
+          <Link
+            href="/journal"
+            onClick={() => setIsOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+              isJournal
+                ? "bg-raised border border-hermes/40 text-text-primary"
+                : "text-text-secondary hover:bg-raised/50"
+            }`}
+          >
+            <BookText size={18} />
+            <span className="font-display font-medium">Journal</span>
           </Link>
         </nav>
 
