@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME, makeToken } from "@/lib/auth";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Always allow: login page, auth API, static assets, Next internals
@@ -14,7 +14,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // If no AUTH_PASSWORD is set, auth is disabled — allow everything
+  // If no AUTH_PASSWORD is set, auth is disabled - allow everything
   const expected = process.env.AUTH_PASSWORD;
   if (!expected) {
     return NextResponse.next();
@@ -28,7 +28,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Not authenticated → redirect to login
+  // Not authenticated -> redirect to login
   const loginUrl = req.nextUrl.clone();
   loginUrl.pathname = "/login";
   return NextResponse.redirect(loginUrl);
