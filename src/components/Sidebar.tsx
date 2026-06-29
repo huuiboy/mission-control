@@ -116,7 +116,6 @@ export function Sidebar() {
                   }`}
                   style={{
                     background: agent.colorDim,
-                    ringColor: agent.color,
                   }}
                 >
                   <Icon size={18} style={{ color: agent.color }} />
