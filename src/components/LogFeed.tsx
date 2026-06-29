@@ -5,21 +5,19 @@ import { Activity } from "lucide-react";
 
 type LogEntry = {
   time: string;
-  source: "claude" | "system" | "openclaw" | "hermes";
+  source: "claude" | "system" | "hermes";
   message: string;
 };
 
 const sourceColor: Record<LogEntry["source"], string> = {
   claude: "var(--claude)",
   system: "var(--text-muted)",
-  openclaw: "var(--openclaw)",
   hermes: "var(--hermes)",
 };
 
 const logs: LogEntry[] = [
   { time: "10:42:01", source: "system", message: "Mission control initialized" },
   { time: "10:42:03", source: "claude", message: "Connected via Claude Code CLI bridge" },
-  { time: "10:42:03", source: "system", message: "Waiting for OpenClaw connection" },
   { time: "10:42:03", source: "system", message: "Waiting for Hermes connection" },
 ];
 

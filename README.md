@@ -10,9 +10,9 @@ This is now wired for local markdown capture on the VPS. Specifically:
 - The **Claude panel** is fully designed (status, live signal waveform, quick
   actions, recent sessions, command input) and its messages can be captured to
   local markdown on the server.
-- **OpenClaw** and **Hermes** are placeholder sections with a "Connect" button
-  that doesn't do anything yet — these were named as future agents, not
-  services that exist today.
+- **Hermes** is a placeholder section with a "Connect" button that doesn't do
+  anything yet — it is named as a future agent, not a service that exists
+  today.
 - The activity log can write to an Obsidian vault on the VPS as daily notes.
 
 Nothing here sends data to Honcho by default. The save path is local to the
@@ -111,7 +111,7 @@ Important constraints to know before building this out:
   put auth in front of the route before deploying it anywhere reachable from
   the internet.
 
-## Connecting OpenClaw / Hermes (or any other agent)
+## Connecting Hermes (or any other agent)
 
 The `AgentPanel` component (`src/components/AgentPanel.tsx`) is generic —
 each agent just needs a name, accent color, icon, and (eventually) an API
@@ -129,7 +129,7 @@ src/
   components/
     StatusBar.tsx       – top bar: clock, system status
     ClaudePanel.tsx      – primary agent panel
-    AgentPanel.tsx       – reusable placeholder panel (OpenClaw, Hermes)
+    AgentPanel.tsx       – reusable placeholder panel (Hermes)
     SignalWave.tsx        – animated signal waveform (signature element)
     LogFeed.tsx            – activity log strip
 ```

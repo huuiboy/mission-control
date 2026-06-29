@@ -13,8 +13,6 @@
 
   --claude: #4fffb0;      /* signal green */
   --claude-dim: #4fffb026;
-  --openclaw: #ffb454;    /* amber */
-  --openclaw-dim: #ffb45426;
   --hermes: #b388ff;      /* violet */
   --hermes-dim: #b388ff26;
 
@@ -38,8 +36,6 @@
 
   --color-claude: var(--claude);
   --color-claude-dim: var(--claude-dim);
-  --color-openclaw: var(--openclaw);
-  --color-openclaw-dim: var(--openclaw-dim);
   --color-hermes: var(--hermes);
   --color-hermes-dim: var(--hermes-dim);
 

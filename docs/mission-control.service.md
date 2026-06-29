@@ -12,7 +12,7 @@ Type=simple
 WorkingDirectory=/opt/mission-control
 Environment=NODE_ENV=production
 Environment=OBSIDIAN_VAULT_DIR=/opt/mission-control/Agentic OS Vault
-ExecStart=/usr/bin/npm run start -- --hostname 127.0.0.1 --port 3000
+ExecStart=/usr/bin/npm run start -- --hostname 127.0.0.1 --port 3001
 Restart=always
 RestartSec=5
 User=www-data

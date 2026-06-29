@@ -4,7 +4,7 @@ Use this on the VPS to expose `mission-control` at `tryl.apexledger.pro`.
 
 ## Assumptions
 
-- the app listens on `127.0.0.1:3000`
+- the app listens on `127.0.0.1:3001`
 - `mission-control` runs under `systemd`
 - the DNS `A` record for `tryl.apexledger.pro` points to the VPS
 
@@ -18,7 +18,7 @@ server {
     client_max_body_size 20m;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -53,7 +53,7 @@ server {
     client_max_body_size 20m;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

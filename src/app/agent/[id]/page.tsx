@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Send, Phone, Info, Search, Settings, Sparkles, Zap, Waves, ArrowLeft } from "lucide-react";
+import { Send, Phone, Info, Search, Settings, Sparkles, Waves, ArrowLeft } from "lucide-react";
 import { useState, use } from "react";
 import Link from "next/link";
 import { SignalWave } from "@/components/SignalWave";
 import { SpeechMicButton } from "@/components/SpeechMicButton";
 import { saveAgenticOsEntry } from "@/lib/agentic-os-client";
 
-type AgentId = "claude" | "openclaw" | "hermes";
+type AgentId = "claude" | "hermes";
 
 const agentConfigs: Record<AgentId, {
   name: string;
@@ -27,15 +27,6 @@ const agentConfigs: Record<AgentId, {
     model: "claude-sonnet-4-6",
     status: "online",
     description: "Primary AI assistant for code analysis, design, and strategic problem-solving.",
-  },
-  openclaw: {
-    name: "OpenClaw",
-    icon: Zap,
-    color: "var(--openclaw)",
-    colorDim: "var(--openclaw-dim)",
-    model: "not configured",
-    status: "offline",
-    description: "Specialized agent for task automation and workflow orchestration.",
   },
   hermes: {
     name: "Hermes",

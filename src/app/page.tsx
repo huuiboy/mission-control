@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Zap, Waves, Plus } from "lucide-react";
+import { Sparkles, Waves, Plus } from "lucide-react";
 import { ClaudePanel } from "@/components/ClaudePanel";
 import { AgentPanel } from "@/components/AgentPanel";
 import { LogFeed } from "@/components/LogFeed";
@@ -18,7 +18,7 @@ export default function Home() {
                 Dashboard
               </h1>
               <p className="mt-1 font-body text-sm text-text-secondary">
-                1 agent online, 2 awaiting configuration
+                1 agent online, 1 awaiting configuration
               </p>
             </div>
             <motion.button
@@ -38,14 +38,6 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <ClaudePanel />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1">
-            <AgentPanel
-              name="OpenClaw"
-              model="not configured"
-              color="var(--openclaw)"
-              colorDim="var(--openclaw-dim)"
-              icon={Zap}
-              delay={0.1}
-            />
             <AgentPanel
               name="Hermes"
               model="not configured"

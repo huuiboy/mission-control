@@ -11,7 +11,6 @@ import {
   Sparkles,
   Waves,
   X,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,14 +24,6 @@ const agents = [
     color: "var(--claude)",
     colorDim: "var(--claude-dim)",
     status: "online",
-  },
-  {
-    id: "openclaw",
-    name: "OpenClaw",
-    icon: Zap,
-    color: "var(--openclaw)",
-    colorDim: "var(--openclaw-dim)",
-    status: "offline",
   },
   {
     id: "hermes",
@@ -197,7 +188,7 @@ export function Sidebar() {
             Sign out
           </button>
           <p className="px-4 font-mono text-xs text-text-muted">
-            v0.1.0 · Connected to 1/3 agents
+            v0.1.0 · Connected to 1/2 agents
           </p>
         </div>
       </motion.aside>
