@@ -5,12 +5,24 @@ import { getHermesMemoryFilePath } from "@/lib/hermes-memory";
 export const runtime = "nodejs";
 
 export async function GET() {
+  const preferredProvider = process.env.HERMES_PROVIDER?.trim().toLowerCase();
+  const hasDeepSeekKey = Boolean(process.env.DEEPSEEK_API_KEY?.trim());
   const hasOpenAiKey = Boolean(process.env.OPENAI_API_KEY?.trim());
+  const provider =
+    preferredProvider === "openai"
+      ? "openai"
+      : preferredProvider === "deepseek"
+        ? "deepseek"
+        : hasDeepSeekKey
+          ? "deepseek"
+          : hasOpenAiKey
+            ? "openai"
+            : "local-fallback";
 
   return NextResponse.json({
     ok: true,
-    status: hasOpenAiKey ? "online" : "offline",
-    provider: hasOpenAiKey ? "openai" : "local-fallback",
+    status: provider === "local-fallback" ? "offline" : "online",
+    provider,
   });
 }
 

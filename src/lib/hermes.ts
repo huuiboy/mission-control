@@ -23,7 +23,7 @@ export type HermesDecision = {
   savedArtifacts: HermesSavedArtifact[];
   memory: HermesMemorySnapshot;
   memoryFilePath: string;
-  provider: "openai" | "local-fallback";
+  provider: "deepseek" | "openai" | "local-fallback";
   model: string;
 };
 
@@ -65,6 +65,20 @@ const MEMORY_HINTS = [
 ];
 
 const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-5.5";
+const DEFAULT_DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL?.trim() || "deepseek-v4-flash";
+
+function getHermesProviderPreference() {
+  const configured = process.env.HERMES_PROVIDER?.trim().toLowerCase();
+  if (configured === "deepseek" || configured === "openai") {
+    return configured;
+  }
+
+  if (process.env.DEEPSEEK_API_KEY?.trim()) {
+    return "deepseek";
+  }
+
+  return "openai";
+}
 
 function includesAny(value: string, terms: string[]) {
   return terms.some((term) => value.includes(term));
@@ -294,6 +308,57 @@ async function callOpenAIResponsesApi(params: {
   return outputText;
 }
 
+async function callDeepSeekChatApi(params: {
+  intent: HermesIntent;
+  message: string;
+  conversation: HermesMessage[];
+  memory: HermesMemorySnapshot;
+}) {
+  const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
+  if (!apiKey) {
+    throw new Error("DEEPSEEK_API_KEY is not set");
+  }
+
+  const response = await fetch("https://api.deepseek.com/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: DEFAULT_DEEPSEEK_MODEL,
+      messages: [
+        {
+          role: "system",
+          content: buildHermesInstructions(params.intent),
+        },
+        {
+          role: "user",
+          content: buildHermesInput(params),
+        },
+      ],
+      stream: false,
+    }),
+  });
+
+  const payload = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message =
+      payload?.error?.message ??
+      payload?.message ??
+      `DeepSeek request failed (${response.status})`;
+    throw new Error(message);
+  }
+
+  const outputText = payload?.choices?.[0]?.message?.content;
+  if (typeof outputText !== "string" || !outputText.trim()) {
+    throw new Error("DeepSeek response did not contain any text output");
+  }
+
+  return outputText.trim();
+}
+
 export async function processHermesMessage(
   message: string,
   conversation: HermesMessage[] = []
@@ -328,8 +393,8 @@ export async function processHermesMessage(
 
   let reply = "";
   const highlights: string[] = [];
-  let provider: HermesDecision["provider"] = "openai";
-  let model = DEFAULT_OPENAI_MODEL;
+  let provider: HermesDecision["provider"] = "local-fallback";
+  let model = "local-fallback";
 
   if (intent === "goal") {
     const goalBody = buildGoalsBody(trimmed);
@@ -365,19 +430,35 @@ export async function processHermesMessage(
   }
 
   try {
-    reply = await callOpenAIResponsesApi({
-      intent,
-      message: trimmed,
-      conversation,
-      memory: currentMemory,
-    });
+    const preferredProvider = getHermesProviderPreference();
+
+    if (preferredProvider === "deepseek") {
+      reply = await callDeepSeekChatApi({
+        intent,
+        message: trimmed,
+        conversation,
+        memory: currentMemory,
+      });
+      provider = "deepseek";
+      model = DEFAULT_DEEPSEEK_MODEL;
+    } else {
+      reply = await callOpenAIResponsesApi({
+        intent,
+        message: trimmed,
+        conversation,
+        memory: currentMemory,
+      });
+      provider = "openai";
+      model = DEFAULT_OPENAI_MODEL;
+    }
   } catch (error) {
     provider = "local-fallback";
+    model = "local-fallback";
     reply = buildChatReply(intent, trimmed, highlights);
     if (error instanceof Error) {
-      reply = `${reply}\n\n(OpenAI fallback: ${error.message})`;
+      reply = `${reply}\n\n(LLM fallback: ${error.message})`;
     } else {
-      reply = `${reply}\n\n(OpenAI fallback: Hermes could not reach the API.)`;
+      reply = `${reply}\n\n(LLM fallback: Hermes could not reach the API.)`;
     }
   }
 

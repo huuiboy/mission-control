@@ -25,6 +25,12 @@ export function Sidebar() {
   const isGoals = pathname === "/goals";
   const isJournal = pathname === "/journal";
 
+  const handleNavigation = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -125,7 +131,7 @@ export function Sidebar() {
         <nav className="flex-1 space-y-1">
           <Link
             href="/"
-            onClick={() => setIsOpen(false)}
+            onClick={handleNavigation}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
               isHome
                 ? "bg-raised border border-claude/40 text-text-primary"
@@ -138,7 +144,7 @@ export function Sidebar() {
 
           <Link
             href="/goals"
-            onClick={() => setIsOpen(false)}
+            onClick={handleNavigation}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
               isGoals
                 ? "bg-raised border border-claude/40 text-text-primary"
@@ -151,7 +157,7 @@ export function Sidebar() {
 
           <Link
             href="/vault"
-            onClick={() => setIsOpen(false)}
+            onClick={handleNavigation}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
               isVault
                 ? "bg-raised border border-claude/40 text-text-primary"
@@ -164,7 +170,7 @@ export function Sidebar() {
 
           <Link
             href="/journal"
-            onClick={() => setIsOpen(false)}
+            onClick={handleNavigation}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
               isJournal
                 ? "bg-raised border border-hermes/40 text-text-primary"
@@ -188,7 +194,7 @@ export function Sidebar() {
               <Link
                 key={agent.id}
                 href={`/agent/${agent.id}`}
-                onClick={() => setIsOpen(false)}
+                onClick={handleNavigation}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${
                   isActive
                     ? "bg-raised border border-raised text-text-primary"
