@@ -25,6 +25,22 @@ which npm
 If those commands print paths under `nvm`, copy the full paths into the
 systemd service instead of relying on shell startup files.
 
+If you want Hermes to use the OpenAI API, keep the key in this VPS file:
+
+```text
+/opt/mission-control/.env
+```
+
+The deploy script will pick up these values if you export them before running
+it:
+
+```bash
+OPENAI_API_KEY=your_key_here
+OPENAI_MODEL=gpt-5.5
+```
+
+`OPENAI_MODEL` is optional; leave it unset if you want the app default.
+
 ## 1. Create the Obsidian vault folders
 
 ```bash

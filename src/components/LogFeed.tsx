@@ -18,7 +18,7 @@ const sourceColor: Record<LogEntry["source"], string> = {
 const logs: LogEntry[] = [
   { time: "10:42:01", source: "system", message: "Mission control initialized" },
   { time: "10:42:03", source: "claude", message: "Connected via Claude Code CLI bridge" },
-  { time: "10:42:03", source: "system", message: "Waiting for Hermes connection" },
+  { time: "10:42:03", source: "hermes", message: "Hermes routing channel ready" },
 ];
 
 export function LogFeed() {

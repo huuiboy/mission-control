@@ -18,6 +18,8 @@ const agentConfigs: Record<AgentId, {
   model: string;
   status: string;
   description: string;
+  welcome: string;
+  suggestions: string[];
 }> = {
   claude: {
     name: "Claude",
@@ -27,49 +29,95 @@ const agentConfigs: Record<AgentId, {
     model: "claude-sonnet-4-6",
     status: "online",
     description: "Primary AI assistant for code analysis, design, and strategic problem-solving.",
+    welcome: "Hello! I'm ready to help. What would you like to work on?",
+    suggestions: ["Code Review", "Architecture", "Debugging", "Documentation"],
   },
   hermes: {
     name: "Hermes",
     icon: Waves,
     color: "var(--hermes)",
     colorDim: "var(--hermes-dim)",
-    model: "not configured",
-    status: "offline",
-    description: "Communication and notification handler for multi-channel delivery.",
+    model: "gpt-5.5 · api-backed",
+    status: "online",
+    description: "ChatGPT-backed routing agent for capture, summaries, and delivery.",
+    welcome: "Hermes is online. Ask me to summarize, route, or capture a note.",
+    suggestions: ["Summarize today", "Capture action items", "Draft journal note", "Turn notes into goals"],
   },
 };
 
 export default function AgentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: agentId } = use(params);
   const id = (agentId in agentConfigs ? agentId : "claude") as AgentId;
+  const agent = agentConfigs[id];
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([
-    { role: "assistant", content: "Hello! I'm ready to help. What would you like to work on?" },
+    { role: "assistant", content: agent.welcome },
   ]);
   const [input, setInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const agent = agentConfigs[id];
   const Icon = agent.icon;
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages([...messages, { role: "user", content: input }]);
-    setInput("");
-    // Simulate response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "I'm processing your request..." },
-      ]);
-    }, 500);
-  };
-
-  const persistEntry = async () => {
+  const handleSend = async () => {
     const message = input.trim();
     if (!message || isSaving) return;
 
+    const userMessage = { role: "user", content: message };
+    const nextConversation = [...messages, userMessage];
+
+    setMessages(nextConversation);
+    setInput("");
     setIsSaving(true);
+
     try {
+      if (id === "hermes") {
+        try {
+          const response = await fetch("/api/hermes", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message,
+              conversation: nextConversation,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Hermes request failed (${response.status})`);
+          }
+
+          const data = (await response.json()) as {
+            reply: string;
+            savedArtifacts?: Array<{ kind: string; filePath: string }>;
+          };
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                data.savedArtifacts && data.savedArtifacts.length
+                  ? `${data.reply}\n\nSaved:\n${data.savedArtifacts
+                      .map((artifact) => `- ${artifact.kind}: ${artifact.filePath}`)
+                      .join("\n")}`
+                  : data.reply,
+            },
+          ]);
+        } catch (error) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                error instanceof Error
+                  ? `Hermes could not complete that request: ${error.message}`
+                  : "Hermes could not complete that request.",
+            },
+          ]);
+        }
+        return;
+      }
+
       await saveAgenticOsEntry({
         kind: "chat",
         source: `agent-${id}`,
@@ -77,7 +125,13 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         threadId: id,
         body: message,
       });
-      handleSend();
+
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: "I'm processing your request..." },
+        ]);
+      }, 500);
     } finally {
       setIsSaving(false);
     }
@@ -166,8 +220,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
                 {agent.description}
               </p>
               <div className="w-full max-w-md grid grid-cols-2 gap-3">
-                {["Code Review", "Architecture", "Debugging", "Documentation"].map(
-                  (suggestion) => (
+                {agent.suggestions.map((suggestion) => (
                     <button
                       key={suggestion}
                       onClick={() => setInput(suggestion)}
@@ -175,8 +228,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
                     >
                       {suggestion}
                     </button>
-                  )
-                )}
+                  ))}
               </div>
             </motion.div>
           )}
@@ -250,7 +302,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
             activeClassName="border-ember/40 bg-ember-dim text-ember"
           />
           <motion.button
-            onClick={persistEntry}
+            onClick={() => void handleSend()}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             disabled={!input.trim() || isSaving}

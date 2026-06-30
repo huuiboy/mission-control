@@ -31,7 +31,7 @@ const agents = [
     icon: Waves,
     color: "var(--hermes)",
     colorDim: "var(--hermes-dim)",
-    status: "offline",
+    status: "online",
   },
 ];
 
@@ -188,7 +188,7 @@ export function Sidebar() {
             Sign out
           </button>
           <p className="px-4 font-mono text-xs text-text-muted">
-            v0.1.0 · Connected to 1/2 agents
+            v0.1.0 · Connected to 2/2 agents
           </p>
         </div>
       </motion.aside>

@@ -4,7 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 
 export const metadata: Metadata = {
   title: "Mission Control",
-  description: "Command center for Claude and connected agents.",
+  description: "Command center for Claude, Hermes, and connected agents.",
 };
 
 export default function RootLayout({

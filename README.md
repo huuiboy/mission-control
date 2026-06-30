@@ -5,14 +5,15 @@ place. Dark, telemetry-styled, built with Next.js + Tailwind + Framer Motion.
 
 ## What this is right now
 
-This is now wired for local markdown capture on the VPS. Specifically:
+This is now wired for local markdown capture on the VPS and can also use the
+OpenAI API for Hermes responses. Specifically:
 
 - The **Claude panel** is fully designed (status, live signal waveform, quick
   actions, recent sessions, command input) and its messages can be captured to
   local markdown on the server.
-- **Hermes** is a placeholder section with a "Connect" button that doesn't do
-  anything yet — it is named as a future agent, not a service that exists
-  today.
+- **Hermes** is the routing agent for summaries, goals, and journal capture,
+  and it can answer through the OpenAI Responses API when `OPENAI_API_KEY` is
+  set.
 - The activity log can write to an Obsidian vault on the VPS as daily notes.
 
 Nothing here sends data to Honcho by default. The save path is local to the
@@ -49,6 +50,23 @@ OBSIDIAN_VAULT_DIR=/opt/mission-control/Agentic OS Vault
 
 If you open that folder in Obsidian, the daily markdown files will appear as a
 normal vault.
+
+## Hermes ChatGPT setup
+
+To let Hermes talk through the OpenAI API on your VPS, add these environment
+variables to the service or shell that runs Mission Control:
+
+```bash
+OPENAI_API_KEY=your_key_here
+OPENAI_MODEL=gpt-5.5
+```
+
+If `OPENAI_API_KEY` is missing, Hermes falls back to a local reply style so the
+app still works, but it will not be using your OpenAI account for responses.
+`OPENAI_MODEL` is optional; omit it if you want the app default.
+
+If you use the VPS deploy script, the easiest path is to export the variables
+once before running it and let it write `/opt/mission-control/.env` for you.
 
 Suggested vault layout:
 

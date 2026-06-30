@@ -7,11 +7,14 @@ APP_GROUP="${APP_GROUP:-www-data}"
 APP_HOSTNAME="${APP_HOSTNAME:-tryl.apexledger.pro}"
 APP_PORT="${APP_PORT:-3001}"
 VAULT_DIR="${VAULT_DIR:-$APP_DIR/Agentic OS Vault}"
+OPENAI_ENV_FILE="${OPENAI_ENV_FILE:-$APP_DIR/.env}"
+OPENAI_MODEL="${OPENAI_MODEL:-}"
 SERVICE_NAME="${SERVICE_NAME:-mission-control}"
 PRINT_ONLY="${PRINT_ONLY:-0}"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 NGINX_SITES_AVAILABLE="/etc/nginx/sites-available/${SERVICE_NAME}"
 NGINX_SITES_ENABLED="/etc/nginx/sites-enabled/${SERVICE_NAME}"
+OPENAI_ENV_LINES=()
 
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run this script as root (for example: sudo bash docs/vps-deploy.sh)." >&2
@@ -31,6 +34,14 @@ if [[ -z "$NPM_BIN" ]]; then
   exit 1
 fi
 
+if [[ -n "${OPENAI_API_KEY:-}" ]]; then
+  OPENAI_ENV_LINES+=("OPENAI_API_KEY=${OPENAI_API_KEY}")
+fi
+
+if [[ -n "${OPENAI_MODEL:-}" ]]; then
+  OPENAI_ENV_LINES+=("OPENAI_MODEL=${OPENAI_MODEL}")
+fi
+
 SERVICE_CONFIG=$(cat <<EOF
 [Unit]
 Description=Mission Control
@@ -41,6 +52,7 @@ Type=simple
 WorkingDirectory=${APP_DIR}
 Environment=NODE_ENV=production
 Environment=OBSIDIAN_VAULT_DIR=${VAULT_DIR}
+EnvironmentFile=-${OPENAI_ENV_FILE}
 ExecStart=${NPM_BIN} run start -- --hostname 127.0.0.1 --port ${APP_PORT}
 Restart=always
 RestartSec=5
@@ -78,6 +90,10 @@ EOF
 if [[ "$PRINT_ONLY" == "1" ]]; then
   printf '%s\n' "=== ${SERVICE_FILE} ==="
   printf '%s\n' "$SERVICE_CONFIG"
+  if [[ ${#OPENAI_ENV_LINES[@]} -gt 0 ]]; then
+    printf '%s\n' "=== ${OPENAI_ENV_FILE} ==="
+    printf '%s\n' "${OPENAI_ENV_LINES[@]}"
+  fi
   printf '%s\n' "=== ${NGINX_SITES_AVAILABLE} ==="
   printf '%s\n' "$NGINX_CONFIG"
   printf '%s\n' "=== Vault folders ==="
@@ -89,6 +105,13 @@ fi
 
 mkdir -p "$VAULT_DIR/Daily" "$VAULT_DIR/Goals" "$VAULT_DIR/Journal"
 chown -R "$APP_USER:$APP_GROUP" "$VAULT_DIR"
+
+if [[ ${#OPENAI_ENV_LINES[@]} -gt 0 ]]; then
+  printf '%s\n' "${OPENAI_ENV_LINES[@]}" > "$OPENAI_ENV_FILE"
+  chmod 600 "$OPENAI_ENV_FILE"
+else
+  rm -f "$OPENAI_ENV_FILE"
+fi
 
 printf '%s\n' "$SERVICE_CONFIG" > "$SERVICE_FILE"
 printf '%s\n' "$NGINX_CONFIG" > "$NGINX_SITES_AVAILABLE"

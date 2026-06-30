@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Waves, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ClaudePanel } from "@/components/ClaudePanel";
-import { AgentPanel } from "@/components/AgentPanel";
+import { HermesPanel } from "@/components/HermesPanel";
 import { LogFeed } from "@/components/LogFeed";
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
                 Dashboard
               </h1>
               <p className="mt-1 font-body text-sm text-text-secondary">
-                1 agent online, 1 awaiting configuration
+                2 agents online, 0 awaiting configuration
               </p>
             </div>
             <motion.button
@@ -37,16 +37,7 @@ export default function Home() {
       <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <ClaudePanel />
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1">
-            <AgentPanel
-              name="Hermes"
-              model="not configured"
-              color="var(--hermes)"
-              colorDim="var(--hermes-dim)"
-              icon={Waves}
-              delay={0.18}
-            />
-          </div>
+          <HermesPanel />
         </div>
 
         <div className="mt-5">
