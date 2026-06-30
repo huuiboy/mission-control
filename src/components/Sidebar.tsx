@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 const agents = [
@@ -37,11 +37,22 @@ const agents = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const isHome = pathname === "/";
   const isVault = pathname === "/vault";
   const isGoals = pathname === "/goals";
   const isJournal = pathname === "/journal";
+
+  const handleLogout = async () => {
+    await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "logout" }),
+    });
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <>
@@ -183,7 +194,10 @@ export function Sidebar() {
 
         {/* Footer */}
         <div className="space-y-3 border-t border-raised/50 pt-4">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-raised/50 transition-colors font-display text-sm">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-raised/50 transition-colors font-display text-sm"
+          >
             <LogOut size={16} />
             Sign out
           </button>
