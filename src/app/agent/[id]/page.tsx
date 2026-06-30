@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Send, Phone, Info, Search, Settings, Sparkles, Waves, ArrowLeft } from "lucide-react";
-import { useState, use } from "react";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { SignalWave } from "@/components/SignalWave";
 import { SpeechMicButton } from "@/components/SpeechMicButton";
@@ -54,8 +54,41 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   ]);
   const [input, setInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<"checking" | "online" | "offline">("checking");
 
   const Icon = agent.icon;
+
+  useEffect(() => {
+    if (id !== "hermes") {
+      setConnectionStatus("online");
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const checkHermesStatus = async () => {
+      try {
+        const response = await fetch("/api/hermes", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Hermes status check failed (${response.status})`);
+        }
+
+        const data = (await response.json()) as { status?: string };
+        setConnectionStatus(data.status === "online" ? "online" : "offline");
+      } catch {
+        setConnectionStatus("offline");
+      }
+    };
+
+    void checkHermesStatus();
+
+    return () => controller.abort();
+  }, [id]);
 
   const handleSend = async () => {
     const message = input.trim();
@@ -185,11 +218,11 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
           <div className="flex items-center gap-2">
             <span
               className={`h-2 w-2 rounded-full ${
-                agent.status === "online" ? "bg-claude" : "bg-text-muted"
+                connectionStatus === "online" ? "bg-claude" : "bg-text-muted"
               }`}
             />
             <span className="font-mono text-xs text-text-secondary capitalize">
-              {agent.status} · {agent.description}
+              {connectionStatus} · {agent.description}
             </span>
           </div>
           <button className="p-1.5 rounded-lg hover:bg-raised transition-colors">

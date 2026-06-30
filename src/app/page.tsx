@@ -18,7 +18,7 @@ export default function Home() {
                 Dashboard
               </h1>
               <p className="mt-1 font-body text-sm text-text-secondary">
-                2 agents online, 0 awaiting configuration
+                2 agents tracked, Hermes health checked live
               </p>
             </div>
             <motion.button

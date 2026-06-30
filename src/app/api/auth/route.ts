@@ -7,7 +7,13 @@ export async function POST(req: NextRequest) {
   // ── Logout ────────────────────────────────
   if (action === "logout") {
     const res = NextResponse.json({ ok: true });
-    res.cookies.set(COOKIE_NAME, "", { maxAge: 0, path: "/" });
+    res.cookies.set(COOKIE_NAME, "", {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+      expires: new Date(0),
+    });
     return res;
   }
 

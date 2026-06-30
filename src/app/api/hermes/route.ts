@@ -4,6 +4,16 @@ import { getHermesMemoryFilePath } from "@/lib/hermes-memory";
 
 export const runtime = "nodejs";
 
+export async function GET() {
+  const hasOpenAiKey = Boolean(process.env.OPENAI_API_KEY?.trim());
+
+  return NextResponse.json({
+    ok: true,
+    status: hasOpenAiKey ? "online" : "offline",
+    provider: hasOpenAiKey ? "openai" : "local-fallback",
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const payload = (await req.json()) as {

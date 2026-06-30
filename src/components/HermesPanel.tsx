@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight, CheckSquare2, Send, Sparkles, Waves, BookText } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SignalWave } from "./SignalWave";
 import { SpeechMicButton } from "./SpeechMicButton";
 
@@ -38,6 +38,7 @@ export function HermesPanel() {
   const [lastArtifacts, setLastArtifacts] = useState<Array<{ kind: string; filePath: string }>>([]);
   const [intent, setIntent] = useState<string | null>(null);
   const [provider, setProvider] = useState<string>("openai");
+  const [connectionStatus, setConnectionStatus] = useState<"checking" | "online" | "offline">("checking");
   const [memory, setMemory] = useState<HermesMemorySnapshot>({
     version: 1,
     updatedAt: "",
@@ -52,6 +53,33 @@ export function HermesPanel() {
       return base ? `${base} ${transcript}` : transcript;
     });
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const checkHermesStatus = async () => {
+      try {
+        const response = await fetch("/api/hermes", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Hermes status check failed (${response.status})`);
+        }
+
+        const data = (await response.json()) as { status?: string };
+        setConnectionStatus(data.status === "online" ? "online" : "offline");
+      } catch {
+        setConnectionStatus("offline");
+      }
+    };
+
+    void checkHermesStatus();
+
+    return () => controller.abort();
+  }, []);
 
   const handleSubmit = async () => {
     const message = input.trim();
@@ -85,6 +113,7 @@ export function HermesPanel() {
       setLastReply(data.reply);
       setLastArtifacts(data.savedArtifacts ?? []);
       setProvider(data.provider ?? "openai");
+      setConnectionStatus(data.provider === "openai" ? "online" : "offline");
       if (data.memory) {
         setMemory(data.memory);
       }
@@ -132,9 +161,19 @@ export function HermesPanel() {
           </div>
         </div>
 
-        <span className="flex items-center gap-2 rounded-full border border-hermes/30 bg-hermes-dim px-3 py-1 font-mono text-xs text-hermes">
-          <span className="h-1.5 w-1.5 rounded-full bg-hermes" />
-          online
+        <span
+          className={`flex items-center gap-2 rounded-full px-3 py-1 font-mono text-xs ${
+            connectionStatus === "online"
+              ? "border border-hermes/30 bg-hermes-dim text-hermes"
+              : "border border-text-muted/30 bg-base/60 text-text-muted"
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              connectionStatus === "online" ? "bg-hermes" : "bg-text-muted"
+            }`}
+          />
+          {connectionStatus === "checking" ? "checking" : connectionStatus}
         </span>
       </div>
 

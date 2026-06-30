@@ -3,11 +3,9 @@
 import { motion } from "framer-motion";
 import { LogOut, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 export function StatusBar() {
   const [now, setNow] = useState<Date | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     setNow(new Date());
@@ -16,12 +14,17 @@ export function StatusBar() {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("/api/auth", {
+    const response = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "logout" }),
     });
-    router.push("/login");
+
+    if (!response.ok) {
+      throw new Error(`Logout failed (${response.status})`);
+    }
+
+    window.location.replace("/login");
   };
 
   const time = now

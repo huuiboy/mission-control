@@ -13,46 +13,77 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-
-const agents = [
-  {
-    id: "claude",
-    name: "Claude",
-    icon: Sparkles,
-    color: "var(--claude)",
-    colorDim: "var(--claude-dim)",
-    status: "online",
-  },
-  {
-    id: "hermes",
-    name: "Hermes",
-    icon: Waves,
-    color: "var(--hermes)",
-    colorDim: "var(--hermes-dim)",
-    status: "online",
-  },
-];
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+  const [hermesStatus, setHermesStatus] = useState<"checking" | "online" | "offline">("checking");
   const isHome = pathname === "/";
   const isVault = pathname === "/vault";
   const isGoals = pathname === "/goals";
   const isJournal = pathname === "/journal";
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const checkHermesStatus = async () => {
+      try {
+        const response = await fetch("/api/hermes", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Hermes status check failed (${response.status})`);
+        }
+
+        const data = (await response.json()) as { status?: string };
+        setHermesStatus(data.status === "online" ? "online" : "offline");
+      } catch {
+        setHermesStatus("offline");
+      }
+    };
+
+    void checkHermesStatus();
+
+    return () => controller.abort();
+  }, []);
+
   const handleLogout = async () => {
-    await fetch("/api/auth", {
+    const response = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "logout" }),
     });
-    router.push("/login");
-    router.refresh();
+
+    if (!response.ok) {
+      throw new Error(`Logout failed (${response.status})`);
+    }
+
+    window.location.replace("/login");
   };
+
+  const agents = [
+    {
+      id: "claude",
+      name: "Claude",
+      icon: Sparkles,
+      color: "var(--claude)",
+      colorDim: "var(--claude-dim)",
+      status: "online",
+    },
+    {
+      id: "hermes",
+      name: "Hermes",
+      icon: Waves,
+      color: "var(--hermes)",
+      colorDim: "var(--hermes-dim)",
+      status: hermesStatus,
+    },
+  ] as const;
 
   return (
     <>
@@ -202,7 +233,7 @@ export function Sidebar() {
             Sign out
           </button>
           <p className="px-4 font-mono text-xs text-text-muted">
-            v0.1.0 · Connected to 2/2 agents
+            v0.1.0 · Live agent status
           </p>
         </div>
       </motion.aside>
