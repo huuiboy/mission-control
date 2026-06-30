@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/Sidebar";
+import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
   title: "Mission Control",
@@ -23,10 +23,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex bg-base text-text-primary font-body">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {children}
-        </div>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
